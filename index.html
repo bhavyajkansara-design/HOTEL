@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -654,11 +654,40 @@ reveals.forEach(r => obs.observe(r));
 
 function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
 function closeMobile() { document.getElementById('mobileMenu').classList.remove('open'); }
-function handleReservation() {
-  const btn = document.querySelector('.form-submit');
-  btn.textContent = '✓ Reservation Confirmed!';
-  btn.style.background = '#4a7c59';
-  setTimeout(() => { btn.textContent = 'Confirm Reservation'; btn.style.background = ''; }, 3000);
+async function handleReservation() {
+  const name = document.querySelector('input[placeholder="e.g. Priya Mehta"]').value.trim();
+  const phone = document.querySelector('input[type="tel"]').value.trim();
+  const date = document.querySelector('input[type="date"]').value;
+  const selects = document.querySelectorAll('select');
+  const time = selects[0].value;
+  const guests = selects[1].value;
+  const occasion = selects[2].value;
+  const requests = document.querySelector('textarea').value.trim();
+
+  if (!name || !phone || !date) {
+    alert('Please enter your name, phone, and date.');
+    return;
+  }
+
+  const payload = { name, phone, date, time, guests, occasion, requests };
+
+  try {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbxrKPTM0IXBWk1-NLc0PCv679ByOhnTve8EI4wEvjG1ZAVjip3dxeK1HBx1sJYsXNSx/exec', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      alert('Reservation sent! Check your Google Sheet.');
+    } else {
+      alert('Reservation failed. Please try again.');
+    }
+  } catch (error) {
+    alert('Unable to send reservation. Try again later.');
+    console.error(error);
+  }
 }
 // ==================== HIDDEN ADMIN MODE ====================
 const ADMIN_PASSWORD = '1';
